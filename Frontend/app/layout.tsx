@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Admin Panel",
-  description: "Simple admin panel"
+  description: "Simple admin panel",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 min-h-screen">{children}</body>
+      <body className="bg-gray-100 min-h-screen">{children}</body>
     </html>
   );
 }
