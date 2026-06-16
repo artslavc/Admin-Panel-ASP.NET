@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Admin Panel",
-  description: "Simple admin panel,
+  description: "Simple admin panel"
 };
 
 export default function RootLayout({
