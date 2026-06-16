@@ -20,7 +20,7 @@ export default function AdminSidebar() {
   return (
     <aside className="w-64 bg-white shadow-md flex flex-col">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
+        <h1 className="text-xl font-bold text-gray-800">Админ панель</h1>
       </div>
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => (
