@@ -5,33 +5,59 @@ export interface User {
   username: string;
   email: string;
   banned: boolean;
+  role: "user" | "admin";
 }
 
 const initialUsers: User[] = [
-  { id: "1", username: "Алексей", email: "aleksey@example.com", banned: false },
-  { id: "2", username: "masha2005", email: "masha2005@example.com", banned: true },
-  { id: "3", username: "kto", email: "ktototam@example.com", banned: false },
+  {
+    id: "1",
+    username: "alex",
+    email: "alex@example.com",
+    banned: false,
+    role: "admin",
+  },
+  {
+    id: "2",
+    username: "maria",
+    email: "maria@example.com",
+    banned: false,
+    role: "user",
+  },
+  {
+    id: "3",
+    username: "john",
+    email: "john@example.com",
+    banned: true,
+    role: "user",
+  },
 ];
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>(initialUsers);
 
-  const toggleBan = (id: string) => {
+  const toggleBan = (userId: string) => {
     setUsers((prev) =>
       prev.map((user) =>
-        user.id === id ? { ...user, banned: !user.banned } : user
+        user.id === userId ? { ...user, banned: !user.banned } : user
       )
     );
   };
 
-  const changeUsername = (id: string, newUsername: string) => {
-    if (!newUsername.trim()) return;
+  const changeUsername = (userId: string, newUsername: string) => {
     setUsers((prev) =>
       prev.map((user) =>
-        user.id === id ? { ...user, username: newUsername.trim() } : user
+        user.id === userId ? { ...user, username: newUsername } : user
       )
     );
   };
 
-  return { users, toggleBan, changeUsername };
+  const changeRole = (userId: string, newRole: "user" | "admin") => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.id === userId ? { ...user, role: newRole } : user
+      )
+    );
+  };
+
+  return { users, toggleBan, changeUsername, changeRole };
 }

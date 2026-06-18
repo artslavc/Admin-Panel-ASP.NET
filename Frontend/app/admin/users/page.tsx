@@ -4,7 +4,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { useState } from "react";
 
 export default function UsersPage() {
-  const { users, toggleBan, changeUsername } = useUsers();
+  const { users, toggleBan, changeUsername, changeRole } = useUsers();
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
 
@@ -17,6 +17,10 @@ export default function UsersPage() {
     changeUsername(id, newUsername);
     setEditingUserId(null);
     setNewUsername("");
+  };
+
+  const handleRoleChange = (userId: string, newRole: "user" | "admin") => {
+    changeRole(userId, newRole);
   };
 
   return (
@@ -37,6 +41,9 @@ export default function UsersPage() {
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Статус
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Роль
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Действия
@@ -88,6 +95,18 @@ export default function UsersPage() {
                   >
                     {user.banned ? "Заблокирован" : "Активен"}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <select
+                    value={user.role || "user"}
+                    onChange={(e) =>
+                      handleRoleChange(user.id, e.target.value as "user" | "admin")
+                    }
+                    className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="user">Пользователь</option>
+                    <option value="admin">Администратор</option>
+                  </select>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   {editingUserId !== user.id && (
