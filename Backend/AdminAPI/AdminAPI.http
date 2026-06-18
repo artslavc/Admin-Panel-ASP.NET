@@ -1,0 +1,11 @@
+@AdminAPI_HostAddress = http://localhost:5198
+
+GET {{AdminAPI_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{AdminAPI_HostAddress}}/todos/1
+Accept: application/json
+
+###
