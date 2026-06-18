@@ -1,15 +1,19 @@
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-using Serilog.Events;
 using AdminAPI.Configurations;
 using AdminAPI.Data;
 using AdminAPI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddCustomRateLimiting();
 builder.Services.AddControllers();
+builder.Services.AddCustomRateLimiting();
 builder.Services.AddCors();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
@@ -22,6 +26,11 @@ builder.Host.UseSerilog((context, config) =>
           .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
           .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
           .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning);
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 var app = builder.Build();

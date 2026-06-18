@@ -15,6 +15,18 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
+    // POST: /api/auth/register
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] LoginRequest request)
+    {
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        _logger.LogInformation($"[*] {DateTime.Now} | {clientIp} -> POST /api/auth/register ({request.Login})");
+
+        string result = await _loginService.ValidateUserRegister(request.Login, request.Password);
+
+        return result != null ? Ok() : BadRequest("Проверьте правильность заполненных данных!");
+    }
+
     // POST: /api/auth/login
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)

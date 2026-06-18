@@ -1,10 +1,12 @@
-﻿using AdminAPI.Services;
+﻿using AdminAPI.Data;
+using AdminAPI.Models;
+using AdminAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AdminAPI.Data;
+using System.Text.RegularExpressions;
 
 namespace AdminAPI.Services
 {
@@ -19,7 +21,7 @@ namespace AdminAPI.Services
             _context = context;
         }
 
-        private string GenerateJwtToken(string login)
+        private string GenerateJwtToken(string login, string role)
         {
             // Настройки из appsettings.json
             var secretKey = _configuration["JwtSettings:SecretKey"];
@@ -30,6 +32,7 @@ namespace AdminAPI.Services
             var claims = new List<Claim>
             {
                 new Claim("name", login),
+                new Claim("role", role),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -46,13 +49,41 @@ namespace AdminAPI.Services
             return tokenHandler.WriteToken(token);
         }
 
+        public async Task<string?> ValidateUserRegister(string login, string password)
+        {
+            bool hasSpecificSymbols = Regex.IsMatch(login, @"[!@#\$%^&*(),.?\-_]");
+            bool hasLengthTrue = login.Length <= 12 ? true : false;
+
+            if (hasSpecificSymbols != true && hasLengthTrue)
+            {
+                if (await _context.Users.AnyAsync(u => u.Login == login)) return null;
+
+                var user = new User
+                {
+                    Login = login,
+                    PasswordHash = PasswordHelper.HashPassword(password),
+                    Role = "user"
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                return "ok";
+            }
+
+            return null;
+        }
+
         public async Task<string?> ValidateUserLogin(string login, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == login && u.PasswordHash == password);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == login);
+
+            if (!PasswordHelper.VerifyPassword(password, user.PasswordHash))
+                return null;
 
             if (user != null)
             {
-                return GenerateJwtToken(login);
+                return GenerateJwtToken(login, user.Role);
             }
 
             return null;
