@@ -4,3 +4,4 @@ bin/
 obj/
 .vs/
 Logs/
+Backend/AdminAPI/AdminAPI.csproj.Backup.tmp
