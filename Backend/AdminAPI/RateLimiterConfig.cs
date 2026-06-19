@@ -20,7 +20,7 @@ public static class RateLimiterConfig
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
                             AutoReplenishment = true,
-                            PermitLimit = 10, // 10 запросов в минуту
+                            PermitLimit = 79, // 79 запросов в минуту
                             QueueLimit = 0,
                             Window = TimeSpan.FromMinutes(1)
                         });

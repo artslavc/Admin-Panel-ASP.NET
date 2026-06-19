@@ -12,9 +12,8 @@ export default function AdminLayout({
   const router = useRouter();
 
   useEffect(() => {
-    // заглушка
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
+    const token = localStorage.getItem("token");
+    if (!token) {
       router.push("/login");
     }
   }, [router]);

@@ -54,7 +54,7 @@ namespace AdminAPI.Services
             bool hasSpecificSymbols = Regex.IsMatch(login, @"[!@#\$%^&*(),.?\-_]");
             bool hasLengthTrue = login.Length <= 12 ? true : false;
 
-            if (hasSpecificSymbols != true && hasLengthTrue)
+            if (!hasSpecificSymbols && hasLengthTrue)
             {
                 if (await _context.Users.AnyAsync(u => u.Login == login)) return null;
 
@@ -131,6 +131,9 @@ namespace AdminAPI.Services
                     return false;
 
                 if (user.Status != "active")
+                    return false;
+
+                if (user.Role != "admin")
                     return false;
 
                 var roleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;

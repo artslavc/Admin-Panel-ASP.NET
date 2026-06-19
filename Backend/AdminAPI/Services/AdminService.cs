@@ -59,7 +59,11 @@ namespace AdminAPI.Services
                 if (user.Status != "active")
                     return false;
 
+                if (user.Role != "admin")
+                    return false;
+
                 var roleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
+
                 if (roleClaim != "admin")
                     return false;
 
