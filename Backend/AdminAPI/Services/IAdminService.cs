@@ -1,10 +1,12 @@
-﻿namespace AdminAPI.Services
+﻿using AdminAPI.Models;
+
+namespace AdminAPI.Services
 {
     public interface IAdminService
     {
-        Task<string> UsersList(string token);
-        Task<bool> EditRole(string token, string login);
-        Task<bool> BlockUser(string token, string login);
-        Task<bool> UnblockUser(string token, string login);
+        Task<List<User>> UsersList(string token);
+        Task<bool> EditRole(string token, int id, string role);
+        Task<bool> BlockUser(string token, int id);
+        Task<bool> UnblockUser(string token, int id);
     }
 }

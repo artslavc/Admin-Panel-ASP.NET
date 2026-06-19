@@ -62,7 +62,8 @@ namespace AdminAPI.Services
                 {
                     Login = login,
                     PasswordHash = PasswordHelper.HashPassword(password),
-                    Role = "user"
+                    Role = "user",
+                    Status = "active"
                 };
 
                 _context.Users.Add(user);
@@ -78,15 +79,19 @@ namespace AdminAPI.Services
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == login);
 
+            if (user == null)
+                return null;
+
+            if (user.Status != "active")
+                return null;
+
             if (!PasswordHelper.VerifyPassword(password, user.PasswordHash))
                 return null;
 
-            if (user != null && user.Role == "admin")
-            {
-                return GenerateJwtToken(login, user.Role);
-            }
+            if (user.Role != "admin")
+                return null;
 
-            return null;
+            return GenerateJwtToken(login, user.Role);
         }
 
         public async Task<bool> CheckJwtToken(string token)
@@ -114,11 +119,23 @@ namespace AdminAPI.Services
             {
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
+                var login = principal.FindFirst(ClaimTypes.Name)?.Value
+                            ?? principal.FindFirst("name")?.Value;
+
+                if (string.IsNullOrEmpty(login))
+                    return false;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == login);
+
+                if (user == null)
+                    return false;
+
+                if (user.Status != "active")
+                    return false;
+
                 var roleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
                 if (roleClaim != "admin")
-                {
                     return false;
-                }
 
                 return true;
             }

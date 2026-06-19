@@ -5,13 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddControllers();
 builder.Services.AddCustomRateLimiting();
 builder.Services.AddCors();
