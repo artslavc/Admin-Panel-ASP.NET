@@ -12,5 +12,25 @@ namespace AdminAPI.Services
             _configuration = configuration;
             _context = context;
         }
+
+        public async Task<string> UsersList(string token)
+        {
+            return null;
+        }
+
+        public async Task<bool> EditRole(string token, string login)
+        {
+            return false;
+        }
+
+        public async Task<bool> BlockUser(string token, string login)
+        {
+            return false;
+        }
+
+        public async Task<bool> UnblockUser(string token, string login)
+        {
+            return false;
+        }
     }
 }
