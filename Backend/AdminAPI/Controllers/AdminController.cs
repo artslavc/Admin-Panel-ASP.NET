@@ -67,4 +67,56 @@ public class AdminController : ControllerBase
 
         return result ? Ok() : Unauthorized();
     }
+
+    // POST: /api/admin/users/block/[id]
+    [HttpPost("users/block/{id}")]
+    public async Task<IActionResult> Block(int id)
+    {
+        // Вытаскивает токен из заголовка Authorization
+        var authorizationHeader = Request.Headers["Authorization"].ToString();
+
+        if (string.IsNullOrEmpty(authorizationHeader))
+            return BadRequest("Authorization header is missing");
+
+        if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return BadRequest("Invalid authorization header format. Expected 'Bearer <token>'");
+
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+        if (string.IsNullOrEmpty(token))
+            return BadRequest("Token is empty");
+
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        _logger.LogInformation($"[*] {DateTime.Now} | {clientIp} -> POST /api/admin/users/block/{id}");
+
+        var result = await _adminService.BlockUser(token, id);
+
+        return result ? Ok() : Unauthorized();
+    }
+
+    // POST: /api/admin/users/unblock/[id]
+    [HttpPost("users/unblock/{id}")]
+    public async Task<IActionResult> Unblock(int id)
+    {
+        // Вытаскивает токен из заголовка Authorization
+        var authorizationHeader = Request.Headers["Authorization"].ToString();
+
+        if (string.IsNullOrEmpty(authorizationHeader))
+            return BadRequest("Authorization header is missing");
+
+        if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return BadRequest("Invalid authorization header format. Expected 'Bearer <token>'");
+
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+        if (string.IsNullOrEmpty(token))
+            return BadRequest("Token is empty");
+
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        _logger.LogInformation($"[*] {DateTime.Now} | {clientIp} -> POST /api/admin/users/unblock/{id}");
+
+        var result = await _adminService.UnblockUser(token, id);
+
+        return result ? Ok() : Unauthorized();
+    }
 }

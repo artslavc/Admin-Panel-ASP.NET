@@ -1,10 +1,11 @@
 ﻿using AdminAPI.Data;
+using AdminAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AdminAPI.Models;
 
 namespace AdminAPI.Services
 {
@@ -19,7 +20,7 @@ namespace AdminAPI.Services
             _context = context;
         }
 
-        private bool CheckJwtTokenForAdmin(string token)
+        private async Task<bool> CheckJwtTokenForAdmin(string token)
         {
             // Настройки из appsettings.json
             var secretKey = _configuration["JwtSettings:SecretKey"];
@@ -44,11 +45,23 @@ namespace AdminAPI.Services
             {
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
+                var login = principal.FindFirst(ClaimTypes.Name)?.Value
+                            ?? principal.FindFirst("name")?.Value;
+
+                if (string.IsNullOrEmpty(login))
+                    return false;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == login);
+
+                if (user == null)
+                    return false;
+
+                if (user.Status != "active")
+                    return false;
+
                 var roleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
                 if (roleClaim != "admin")
-                {
                     return false;
-                }
 
                 return true;
             }
@@ -60,7 +73,7 @@ namespace AdminAPI.Services
 
         public async Task<List<User>> UsersList(string token)
         {
-            if (CheckJwtTokenForAdmin(token))
+            if (await CheckJwtTokenForAdmin(token))
             {
                 var users = await _context.Users
                 .Select(u => new User
@@ -84,7 +97,7 @@ namespace AdminAPI.Services
 
             try
             {
-                if (!CheckJwtTokenForAdmin(token))
+                if (!await CheckJwtTokenForAdmin(token))
                     return false;
 
                 var user = await _context.Users.FindAsync(id);
@@ -108,12 +121,48 @@ namespace AdminAPI.Services
 
         public async Task<bool> BlockUser(string token, int id)
         {
-            return false;
+            try
+            {
+                if (!await CheckJwtTokenForAdmin(token))
+                    return false;
+
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                    return false;
+
+                user.Status = "ban";
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public async Task<bool> UnblockUser(string token, int id)
         {
-            return false;
+            try
+            {
+                if (!await CheckJwtTokenForAdmin(token))
+                    return false;
+
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                    return false;
+
+                user.Status = "active";
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
