@@ -31,8 +31,8 @@ namespace AdminAPI.Services
 
             var claims = new List<Claim>
             {
-                new Claim("name", login),
-                new Claim("role", role),
+                new Claim(ClaimTypes.Name, login),
+                new Claim(ClaimTypes.Role, role),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -81,7 +81,7 @@ namespace AdminAPI.Services
             if (!PasswordHelper.VerifyPassword(password, user.PasswordHash))
                 return null;
 
-            if (user != null)
+            if (user != null && user.Role == "admin")
             {
                 return GenerateJwtToken(login, user.Role);
             }
@@ -113,6 +113,13 @@ namespace AdminAPI.Services
             try
             {
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                var roleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
+                if (roleClaim != "admin")
+                {
+                    return false;
+                }
+
                 return true;
             }
             catch
